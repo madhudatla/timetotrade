@@ -1,34 +1,34 @@
+<!DOCTYPE html>
 <html>
-  <body>
-    <h1>Hello from Github Pages</h1>
-  </body>
+    <link rel="stylesheet" type="text/css"href="css1.css"/>    
+<body onload="currentTime()">
+
+<div>Is it time to trade yet????
+</div>
+<div id="clock"></div>
+
+<script> 
+    function currentTime() {
+        var date = new Date(); /* creating object of Date class */
+        var hour = date.getHours();
+        var min = date.getMinutes();
+        var sec = date.getSeconds();
+        hour = updateTime(hour);
+        min = updateTime(min);
+        sec = updateTime(sec);
+        document.getElementById("clock").innerText = hour + " : " + min + " : " + sec; /* adding time to the div */
+        var t = setTimeout(function(){ currentTime() }, 1000); /* setting timer */
+    }
+
+    function updateTime(k) {
+        if (k < 10) {
+            return "0" + k;
+        }
+        else {
+            return k;
+        }
+    }
+
+    </script>
+</body>
 </html>
-
-function displayTimeAndLocation() {
-  // Get current time
-  var currentTime = new Date();
-
-  // Get current location using the Geolocation API
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(function(position) {
-      var latitude = position.coords.latitude;
-      var longitude = position.coords.longitude;
-
-      // Create a new element to display time and location
-      var timeLocationElement = document.createElement("p");
-      timeLocationElement.textContent = "Current time: " + currentTime + " | Current location: " + latitude + ", " + longitude;
-
-      // Append the new element to the body of the page
-      document.body.appendChild(timeLocationElement);
-    });
-  } else {
-    // Create a new element to display an error message
-    var errorMessageElement = document.createElement("p");
-    errorMessageElement.textContent = "Geolocation is not supported by this browser.";
-
-    // Append the new element to the body of the page
-    document.body.appendChild(errorMessageElement);
-  }
-}
-
-displayTimeAndLocation();
