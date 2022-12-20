@@ -3,3 +3,32 @@
     <h1>Hello from Github Pages</h1>
   </body>
 </html>
+
+function displayTimeAndLocation() {
+  // Get current time
+  var currentTime = new Date();
+
+  // Get current location using the Geolocation API
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+      var latitude = position.coords.latitude;
+      var longitude = position.coords.longitude;
+
+      // Create a new element to display time and location
+      var timeLocationElement = document.createElement("p");
+      timeLocationElement.textContent = "Current time: " + currentTime + " | Current location: " + latitude + ", " + longitude;
+
+      // Append the new element to the body of the page
+      document.body.appendChild(timeLocationElement);
+    });
+  } else {
+    // Create a new element to display an error message
+    var errorMessageElement = document.createElement("p");
+    errorMessageElement.textContent = "Geolocation is not supported by this browser.";
+
+    // Append the new element to the body of the page
+    document.body.appendChild(errorMessageElement);
+  }
+}
+
+displayTimeAndLocation();
