@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html>
     <link rel="stylesheet" type="text/css"href="css1.css"/>    
@@ -6,18 +7,119 @@
 <div>Is it time to trade yet????
 </div>
 <div id="clock"></div>
+<div id="nytime"></div>
+<div id="nytimeTimeElapsed"></div>
+<div id="OpenOrClosed"></div>
 
-<script> 
+<div id="timeLeftClock"></div>
+
+<script>
+    
+    var nytime = new Date(
+        (new Date()).toLocaleString(
+            'en-US',
+            { timeZone: 'America/New_York' }
+        )
+    )
+    
+    var curDate; /* creating object of Date class */
+    
+    function getTimeElapsedSinceMidnight() {
+        // Create a new Date object
+        const now = curDate;
+
+        // Get the current hour, minute, and second
+        const hours = now.getHours();
+        const minutes = now.getMinutes();
+        const seconds = now.getSeconds();
+
+        // Calculate the elapsed time in seconds
+        const elapsedTimeInSeconds = (hours * 3600) + (minutes * 60) + seconds;
+
+        // Return the elapsed time in seconds
+        return elapsedTimeInSeconds;
+    }
+
+    function getTimeDifference(startTime, endTime) {
+        // Create new Date objects for the start and end times
+        const startDate = new Date();
+        startDate.setHours(startTime.hours, startTime.minutes, startTime.seconds, 0);
+
+        const endDate = new Date();
+        endDate.setHours(endTime.hours, endTime.minutes, endTime.seconds, 0);
+
+        // Calculate the difference in milliseconds between the two times
+        const diffInMilliseconds = endDate.getTime() - startDate.getTime();
+
+        // Convert the difference to seconds
+        const diffInSeconds = diffInMilliseconds / 1000;
+
+        // Convert the difference to minutes
+        const diffInMinutes = diffInSeconds / 60;
+
+        // Convert the difference to hours
+        const diffInHours = diffInMinutes / 60;
+
+        // Return the time difference as an object with hours, minutes, and seconds properties
+        return {
+            hours: Math.floor(diffInHours),
+            minutes: Math.floor(diffInMinutes % 60),
+            seconds: Math.floor(diffInSeconds % 60)
+        };
+    }
+
+
     function currentTime() {
-        var date = new Date(); /* creating object of Date class */
-        var hour = date.getHours();
-        var min = date.getMinutes();
-        var sec = date.getSeconds();
-        hour = updateTime(hour);
-        min = updateTime(min);
-        sec = updateTime(sec);
-        document.getElementById("clock").innerText = hour + " : " + min + " : " + sec; /* adding time to the div */
+        curDate = new Date();
+        const NYSE_START_HR = 9;
+        const NYSE_END_HR = 13;
+        const NYSE_START_MIN = 30;
+        const NYSE_END_MIN = 0;
+
+
+        var curHour = curDate.getHours();
+        var curMin = curDate.getMinutes();
+        var curSec = curDate.getSeconds();
+
+        curHour = updateTime(curHour);
+        curMin = updateTime(curMin);
+        curSec = updateTime(curSec);
+
+        var elapsedTimeInSeconds = getTimeElapsedSinceMidnight();
+        
+        /*document.getElementById("nytime").innerText = "Current Time in New York:" + nytime;
+        document.getElementById("nytimeTimeElapsed").innerText ="elapsed seconds:"+ elapsedTimeInSeconds;
+        */
+        const startTime = { hours: curHour, minutes: curMin, seconds: curSec };
+        const endTime = { hours: 9, minutes: 30, seconds: 0 };
+        var timeDifference;
+
+        if(nytime.getDay()<1 && nytime.getDay()>5) /*sat & sun*/
+        {
+            document.getElementById("OpenOrClosed").innerText ="Market is closed for weekend!!!";   
+        }
+
+        /* check if its weekday  & during market hours*/
+        if((nytime.getDay()>=1 && nytime.getDay()<=5) && (elapsedTimeInSeconds>34500 && elapsedTimeInSeconds<59400))
+        {
+            document.getElementById("OpenOrClosed").innerText ="Make some moolah... $$$";
+        }
+        else
+        {
+            document.getElementById("OpenOrClosed").innerText ="Not during market hours - Destress!!!";   
+            if(elapsedTimeInSeconds<34500 || elapsedTimeInSeconds>59400) {
+                timeDifference = getTimeDifference(endTime, startTime);
+            }
+        }
+        
+
+        document.getElementById("clock").innerText = curHour + " : " + curMin + " : " + curSec; /* adding time to the div */
+        /* var t = setTimeout(function(){ currentTime() }, 1000); setting timer */
+
+        /* adding time to the div */        
+        document.getElementById("timeLeftClock").innerText = "TIME LEFT: " + timeDifference.hours + "hrs : "  + timeDifference.minutes + "min :" + timeDifference.seconds; 
         var t = setTimeout(function(){ currentTime() }, 1000); /* setting timer */
+
     }
 
     function updateTime(k) {
