@@ -1,17 +1,51 @@
-
 <!DOCTYPE html>
 <html>
     <link rel="stylesheet" type="text/css"href="css1.css"/>    
-<body onload="currentTime()">
+<body onload="setPageContent()">
 
-<div>Is it time to trade yet????
+<div id="header">Excited!!! Cannot Wait To Trade?
 </div>
-<div id="clock"></div>
-<div id="nytime"></div>
-<div id="nytimeTimeElapsed"></div>
-<div id="OpenOrClosed"></div>
+<div id="clockblock">  
+    <div id="clock"></div>
+    <div id="nytime"></div>
+</div>
 
-<div id="timeLeftClock"></div>
+<div id="OpenOrClosed" class="txt1"></div>
+
+<div id="timeLeftClock" class="txt2"></div>
+<br/><br/><hr/>
+<br/><br/>
+<div id="aboutProject">
+    <div class="subProjectTitle">
+        Time To Trade - A Simple Site that tells if the NYSE Stock Market is Open/ Closed
+    </div>
+    <br/>
+    <br/>
+    <div class="content">
+        Background: <br/>
+        Of all the places you can check the stock prices, why would anyone want to come here to see if the stock market is open or not?
+        <br/>
+        Well.. when I was travelling across timezones, there is no app to show if the market how much time is left before start of trading 
+        and I didnt want to keep track of timezones. Think about that  busy professional who is flying and need to check their million dollar accounts 
+        - that don't even know which timezone they are in ;)
+        <br/>
+        Currently, this is a dumb app that shows the time left with reference to market open time, but the need of hour is to have a generic capability 
+        to show the amount of time left before an event. In future (hopefully near-future), this repo will be extended to provide 
+        API, apps, web portal  to query/display events, timelines and integrations.  
+
+        <br/>
+        <br/>
+        <br/>
+        .... This release is simple javascript file that shows if market is open or closed.
+        <br/>
+        .... Stay tuned for smarter versions
+
+        <br/>
+        Source Repo: <a href="https://github.com/madhudatla/timetotrade">GITHUB</a>
+        
+    </div>
+
+</div>
 
 <script>
     
@@ -21,116 +55,90 @@
             { timeZone: 'America/New_York' }
         )
     )
-    
-    var curDate; /* creating object of Date class */
-    
+    var IS_MARKET_OPEN = 0;
+
     function getTimeElapsedSinceMidnight() {
         // Create a new Date object
-        const now = curDate;
-
+        const now = new Date();
         // Get the current hour, minute, and second
         const hours = now.getHours();
         const minutes = now.getMinutes();
         const seconds = now.getSeconds();
-
         // Calculate the elapsed time in seconds
         const elapsedTimeInSeconds = (hours * 3600) + (minutes * 60) + seconds;
-
         // Return the elapsed time in seconds
-        return elapsedTimeInSeconds;
+        return elapsedTimeInSeconds
+    }
+
+    function nyseOpen() {
+    
+        // Get the current day of the week (0 for Sunday, 1 for Monday, etc.)
+        var day = nytime.getDay();
+        // Get the current hour (in military time)
+        var hour = nytime.getHours();
+        // Get the current minute
+        var minute = nytime.getMinutes();
+
+        // The NYSE is open from 9:30 AM to 4 PM on weekdays (Monday through Friday)
+        if (day >= 1 && day <= 5) {
+            if (hour >= 9 && hour < 16) {
+                IS_MARKET_OPEN = 1;
+                return "The NYSE is open ............. Go Get $$$$";
+            } else {
+                IS_MARKET_OPEN=0;
+                return "The NYSE is closed............. BREATHE!!";
+            }
+        } else {
+            IS_MARKET_OPEN=0;
+            return "The NYSE is closed.";
+        }
     }
 
     function getTimeDifference(startTime, endTime) {
-        // Create new Date objects for the start and end times
-        const startDate = new Date();
-        startDate.setHours(startTime.hours, startTime.minutes, startTime.seconds, 0);
+        // Calculate the difference in minutes between the start and end times
+        var diffInMinutes = (endTime - startTime) / (1000 * 60);
+        // Calculate the number of hours in the difference
+        var hours = Math.floor(diffInMinutes / 60);
+        // Calculate the number of remaining minutes
+        var minutes = Math.floor(diffInMinutes% 60);
 
-        const endDate = new Date();
-        endDate.setHours(endTime.hours, endTime.minutes, endTime.seconds, 0);
-
-        // Calculate the difference in milliseconds between the two times
-        const diffInMilliseconds = endDate.getTime() - startDate.getTime();
-
-        // Convert the difference to seconds
-        const diffInSeconds = diffInMilliseconds / 1000;
-
-        // Convert the difference to minutes
-        const diffInMinutes = diffInSeconds / 60;
-
-        // Convert the difference to hours
-        const diffInHours = diffInMinutes / 60;
-
-        // Return the time difference as an object with hours, minutes, and seconds properties
-        return {
-            hours: Math.floor(diffInHours),
-            minutes: Math.floor(diffInMinutes % 60),
-            seconds: Math.floor(diffInSeconds % 60)
-        };
+        // Return the time difference as a string in the format "X hours Y minutes"
+        return hours + " hours " + minutes + " minutes";
     }
 
-
-    function currentTime() {
-        curDate = new Date();
-        const NYSE_START_HR = 9;
-        const NYSE_END_HR = 13;
-        const NYSE_START_MIN = 30;
-        const NYSE_END_MIN = 0;
-
-
-        var curHour = curDate.getHours();
-        var curMin = curDate.getMinutes();
-        var curSec = curDate.getSeconds();
-
-        curHour = updateTime(curHour);
-        curMin = updateTime(curMin);
-        curSec = updateTime(curSec);
-
-        var elapsedTimeInSeconds = getTimeElapsedSinceMidnight();
+    function setPageContent()
+    {        
+        document.getElementById("OpenOrClosed").innerText =  nyseOpen();
         
-        /*document.getElementById("nytime").innerText = "Current Time in New York:" + nytime;
-        document.getElementById("nytimeTimeElapsed").innerText ="elapsed seconds:"+ elapsedTimeInSeconds;
-        */
-        const startTime = { hours: curHour, minutes: curMin, seconds: curSec };
-        const endTime = { hours: 9, minutes: 30, seconds: 0 };
-        var timeDifference;
+        // get time to open
+        var startTime = new Date();
+        nytime = new Date(
+            (new Date()).toLocaleString(
+                'en-US',
+                { timeZone: 'America/New_York' }
+            )
+        );
 
-        if(nytime.getDay()<1 && nytime.getDay()>5) /*sat & sun*/
-        {
-            document.getElementById("OpenOrClosed").innerText ="Market is closed for weekend!!!";   
-        }
+        var nydt = nytime.getFullYear()+'-'+(nytime.getMonth()+1)+'-'+nytime.getDate(); //2022-01-01
 
-        /* check if its weekday  & during market hours*/
-        if((nytime.getDay()>=1 && nytime.getDay()<=5) && (elapsedTimeInSeconds>34500 && elapsedTimeInSeconds<59400))
-        {
-            document.getElementById("OpenOrClosed").innerText ="Make some moolah... $$$";
-        }
-        else
-        {
-            document.getElementById("OpenOrClosed").innerText ="Not during market hours - Destress!!!";   
-            if(elapsedTimeInSeconds<34500 || elapsedTimeInSeconds>59400) {
-                timeDifference = getTimeDifference(endTime, startTime);
+        if(IS_MARKET_OPEN==0){
+            //check number of minutes since AM
+
+            var elapsedTimeInSeconds = getTimeElapsedSinceMidnight();
+            if(elapsedTimeInSeconds>59400)
+            {
+                nydt = nytime.getFullYear()+'-'+ Number(nytime.getMonth()+1)+'-'+ Number( nytime.getDate()+1); //2022-01-01
             }
+            var endTime = new Date(nydt+"T09:30:00");
+            document.getElementById("timeLeftClock").innerText ="Will re-open in:"+  getTimeDifference(startTime, endTime);
         }
+
+        document.getElementById("clock").innerText = "Local Time : " + startTime.getHours() + " : " + startTime.getMinutes() + " : " + startTime.getSeconds(); /* adding time to the div */
+        document.getElementById("nytime").innerText = "NY Time :" + nytime.getHours() + " : " + nytime.getMinutes() + " : " + nytime.getSeconds(); /* adding time to the div */
         
-
-        document.getElementById("clock").innerText = curHour + " : " + curMin + " : " + curSec; /* adding time to the div */
-        /* var t = setTimeout(function(){ currentTime() }, 1000); setting timer */
-
-        /* adding time to the div */        
-        document.getElementById("timeLeftClock").innerText = "TIME LEFT: " + timeDifference.hours + "hrs : "  + timeDifference.minutes + "min :" + timeDifference.seconds; 
-        var t = setTimeout(function(){ currentTime() }, 1000); /* setting timer */
+        var t = setTimeout(function(){ setPageContent() }, 1000); /* setting timer */
 
     }
-
-    function updateTime(k) {
-        if (k < 10) {
-            return "0" + k;
-        }
-        else {
-            return k;
-        }
-    }
-
     </script>
 </body>
 </html>
